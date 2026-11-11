@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { getPlanets } from "@/services/rickyAndMorttService";
 import type { Planets } from "@/types/planets";
+
+import PlanetParticles from "@/components/PlanetParticles";
 
 export default function TelaInicial() {
   const [planets, setPlanets] = useState<Planets[]>([]);
@@ -37,27 +39,73 @@ export default function TelaInicial() {
     };
   }, []);
 
+  if (carregando) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#8b5cf6" />
+        <Text style={styles.text}>Carregando planetas...</Text>
+      </View>
+    );
+  }
+
+  if (erro) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.text}>{erro}</Text>
+      </View>
+    );
+  }
+
   return (
-    <ScrollView
-      contentContainerStyle={{ padding: 24, paddingTop: 60 }}
-    >
-      <Text style={{ fontSize: 24, marginBottom: 20 }}>
-        Planetas
-      </Text>
+    <View style={styles.container}>
+      <PlanetParticles planets={planets} />
 
-      {carregando && <Text>Carregando...</Text>}
+      <View style={styles.header}>
+        <Text style={styles.title}>Rick and Morty</Text>
 
-      {erro !== "" && <Text>{erro}</Text>}
-
-      {planets.map((planets) => (
-        <View key={planets.id} style={{ marginBottom: 16 }}>
-          <Text>{planets.name}</Text>
-          <Text>{planets.dimension}</Text>
-          <Text>{planets.created}</Text>
-          <Text>{planets.residents.length}</Text>
-          <Text>{planets.type} </Text>
-        </View>
-      ))}
-    </ScrollView>
+        <Text style={styles.subtitle}>
+          {planets.length} planetas encontrados
+        </Text>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#080b16",
+  },
+
+  center: {
+    flex: 1,
+    backgroundColor: "#080b16",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+  },
+
+  header: {
+    position: "absolute",
+    top: 65,
+    left: 24,
+    zIndex: 2,
+  },
+
+  title: {
+    color: "#ffffff",
+    fontSize: 28,
+    fontWeight: "bold",
+  },
+
+  subtitle: {
+    color: "#94a3b8",
+    fontSize: 14,
+    marginTop: 6,
+  },
+
+  text: {
+    color: "#ffffff",
+    fontSize: 16,
+  },
+});
